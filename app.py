@@ -86,6 +86,7 @@ DATE: 18 November 2025
 import os
 import streamlit as st
 from dotenv import load_dotenv
+import time
 
 # LangChain - Document Processing
 from langchain_community.document_loaders.pdf import PyPDFLoader
@@ -662,50 +663,105 @@ def main():
     )
     
     # ═══════════════════════════════════════════════════════════════
-    # API KEY INPUT (For Public Demo)
+    # API KEY HANDLING (Works for both local and deployed)
     # ═══════════════════════════════════════════════════════════════
     
-    # Check if API key is in environment (for local dev)
-    if not os.getenv("OPENAI_API_KEY"):
+    # Initialize session state for API key if not exists
+    if 'api_key_provided' not in st.session_state:
+        st.session_state.api_key_provided = False
+    
+    # Check if API key is already in environment (local development with .env)
+    if os.getenv("OPENAI_API_KEY") and not st.session_state.api_key_provided:
+        st.session_state.api_key_provided = True
+    
+    # If no API key in environment, show input UI
+    if not st.session_state.api_key_provided:
         st.title("🔑 OpenAI API Key Required")
+        
         st.markdown("""
-        This application requires an OpenAI API key to function.
+        Welcome! This application requires an OpenAI API key to function.
         
-        ### How to get your API key:
+        ### 🎯 How to get your API key:
         1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
-        2. Sign up or log in
-        3. Create a new API key
-        4. Paste it below
+        2. Sign up or log in to your account
+        3. Click "Create new secret key"
+        4. Copy the key and paste it below
         
-        ### Cost Estimate:
-        - **Very affordable!** ~$0.10-0.20 for 100 pages + 50 questions
-        - Your key is **NOT stored** - only used during this session
-        - All processing happens securely through OpenAI's API
+        ### 💰 Cost Estimate:
+        - **Very affordable!** Approximately $0.10-0.20 for:
+          - Processing 100 pages of documents
+          - Asking 50 questions
+        - Your key is **NOT stored permanently**
+        - Only used during your current session
         
-        ### Privacy:
-        - Your API key is never saved or logged
-        - Your documents are processed in memory only
-        - No data is stored on our servers
+        ### 🔒 Privacy & Security:
+        - ✅ Your API key is stored only in your browser session
+        - ✅ Keys are never logged or saved to disk
+        - ✅ Your documents are processed in memory only
+        - ✅ No data is stored on our servers
+        - ✅ All processing happens securely through OpenAI's API
+        
+        ### ❓ Don't have an API key?
+        - Sign up at [OpenAI](https://platform.openai.com/signup) (free)
+        - Add minimum $5 credit to your account
+        - Create your first API key
         """)
         
-        api_key = st.text_input(
-            "Enter your OpenAI API Key:",
-            type="password",
-            help="Your API key will only be used for this session and not stored anywhere"
-        )
+        st.markdown("---")
         
-        if api_key:
-            if api_key.startswith("sk-"):
+        # API key input
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            api_key = st.text_input(
+                "Enter your OpenAI API Key:",
+                type="password",
+                placeholder="sk-proj-...",
+                help="Your API key will only be used for this session and not stored anywhere"
+            )
+        
+        with col2:
+            st.write("")  # Spacing
+            st.write("")  # Spacing
+            submit_button = st.button("✅ Submit", type="primary")
+        
+        if submit_button or api_key:
+            if api_key and api_key.startswith("sk-"):
+                # Validate key format
                 os.environ["OPENAI_API_KEY"] = api_key
-                st.success("✅ API Key accepted! You can now use the application.")
-                st.info("🔄 Please refresh the page or scroll down to start using the app.")
+                st.session_state.api_key_provided = True
+                st.success("✅ API Key accepted! Loading application...")
+                st.balloons()
+                time.sleep(1)  # Brief pause for user to see success
                 st.rerun()
+            elif api_key:
+                st.error("❌ Invalid API key format. OpenAI keys start with 'sk-' or 'sk-proj-'")
             else:
-                st.error("❌ Invalid API key format. OpenAI keys start with 'sk-'")
-                st.stop()
-        else:
-            st.warning("⚠️ Please enter your API key to continue.")
-            st.stop()
+                st.warning("⚠️ Please enter your API key above.")
+        
+        # Show example
+        with st.expander("💡 Example: What you can do with this app"):
+            st.markdown("""
+            **Upload any PDF and ask questions like:**
+            
+            📚 **For Research Papers:**
+            - "What are the main findings?"
+            - "What methodology was used?"
+            - "What are the limitations?"
+            
+            💼 **For Business Documents:**
+            - "What were the Q3 revenue figures?"
+            - "Summarize the key recommendations"
+            
+            📖 **For Technical Docs:**
+            - "How do I configure X?"
+            - "What are the system requirements?"
+            
+            The system will search through your documents semantically and provide 
+            accurate answers with source citations!
+            """)
+        
+        st.stop()  # Stop execution here until API key is provided
 
     # ─────────────────────────────────────────────────────────────
     # HEADER & DESCRIPTION
