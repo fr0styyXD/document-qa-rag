@@ -106,13 +106,6 @@ from langchain_core.output_parsers import StrOutputParser
 # This keeps our API key secure (not in code)
 load_dotenv()
 
-# Verify API key exists
-# Without this, nothing will work!
-if not os.getenv("OPENAI_API_KEY"):
-    st.error("⚠️ OpenAI API key not found! Please add it to .env file")
-    st.info("Create a .env file with: OPENAI_API_KEY=your-key-here")
-    st.stop()
-
 # These are DESIGN DECISIONS - you should be able to explain WHY for each!
 
 # EMBEDDING MODEL
