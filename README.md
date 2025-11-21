@@ -6,7 +6,6 @@
 [![LangChain](https://img.shields.io/badge/🦜_LangChain-1.0+-green.svg)](https://python.langchain.com/)
 [![OpenAI](https://img.shields.io/badge/OpenAI-API-412991.svg)](https://openai.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.40-FF4B4B.svg)](https://streamlit.io/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **🔗 [Live Demo](https://doc-q-a-rag.streamlit.app)** |
 
